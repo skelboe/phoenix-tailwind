@@ -1,0 +1,60 @@
+#!/usr/bin/python3
+
+import sys
+import glob
+import os
+
+
+def read_file(filename):
+    fin = open(filename, "rt")
+    buf = fin.read()
+    fin.close()
+    return buf
+
+
+def write_file(filename, buf):
+    fout = open(filename, "wt")
+    fout.write(buf)
+    fout.close()
+
+
+def replace(filename, new, old):
+    buf = read_file(filename)
+    buf = buf.replace(old, new)
+    buf = buf.replace(old.lower(), new.lower())
+    return buf
+
+
+def process(path, new, old):
+    rec = "**" in path
+    for filename in glob.glob(path, recursive=rec):
+        if not os.path.isdir(filename):
+            buf = replace(filename, new, old)
+            fout = write_file(filename, buf)
+
+
+def rename(path, new, old):
+    src = path.format(old.lower())
+    dst = path.format(new.lower())
+    if not os.path.isdir(dst) and not os.path.isfile(dst):
+        os.rename(src, dst)
+
+
+# Ensure at least a name is given
+if len(sys.argv) < 2:
+    print("usage: bin/rename <new> [old]")
+    sys.exit(1)
+
+# Set up the names
+new = sys.argv[1]
+old = "MyApp"
+if len(sys.argv) > 2:
+    old = sys.argv[2]
+
+# Run through all files and check for name
+for path in ["./config/*", "./lib/**/*", "./priv/repo/**/*", "./test/**/*", "./*.*", "./.*"]:
+    process(path, new, old)
+
+# Rename folders and files
+for path in ["lib/{}", "lib/{}.ex", "lib/{}_web",  "lib/{}_web.ex", "test/{}_web"]:
+    rename(path, new, old)
