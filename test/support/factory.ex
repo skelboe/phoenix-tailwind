@@ -1,6 +1,6 @@
 defmodule MyApp.Factory do
   @moduledoc false
-  use ExMachina.Ecto, repo: Minutes.Repo
+  use ExMachina.Ecto, repo: MyApp.Repo
 
   ## Helpers
 
